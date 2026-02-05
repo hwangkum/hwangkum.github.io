@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>URL Table</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 20px;
+      font-family: sans-serif;
+      background: #fff0db;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    td {
+      width: 120px;
+      height: 32px;
+      border: 1px solid #000;
+      padding: 4px;
+      cursor: pointer;
+      background: #fff;
+    }
+    td:focus {
+      outline: none;
+      background: #ffffd6;
+    }
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<table id="tbl"></table>
+<button id="reset">Reset</button>
+
+<script>
+  const ROWS = 20;
+  const COLS = 10;
+
+  let data = Array.from({ length: ROWS }, () =>
+    Array.from({ length: COLS }, () => "")
+  );
+
+  function encode(obj) {
+    return btoa(JSON.stringify(obj))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  }
+
+  function decode(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(str));
+  }
+
+  function loadFromURL() {
+    const params = new URLSearchParams(location.hash.slice(1));
+    const d = params.get('data');
+    if (d) data = decode(d);
+  }
+
+  function saveToURL() {
+    location.hash = 'data=' + encode(data);
+  }
+
+  function render() {
+    const table = document.getElementById('tbl');
+    table.innerHTML = '';
+    for (let r = 0; r < ROWS; r++) {
+      const tr = document.createElement('tr');
+      for (let c = 0; c < COLS; c++) {
+        const td = document.createElement('td');
+        td.contentEditable = true;
+        td.textContent = data[r][c];
+        td.dataset.r = r;
+        td.dataset.c = c;
+        td.addEventListener('input', e => {
+          data[r][c] = e.target.textContent;
+          saveToURL();
+        });
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+  }
+
+  document.getElementById('reset').onclick = () => {
+    data = Array.from({ length: ROWS }, () =>
+      Array.from({ length: COLS }, () => "")
+    );
+    saveToURL();
+    render();
+  };
+
+  loadFromURL();
+  render();
+
+  window.addEventListener('popstate', () => {
+    loadFromURL();
+    render();
+  });
+</script>
+
+</body>
+</html>
