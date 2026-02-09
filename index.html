@@ -1,127 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Key Value Entry</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>QR Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
       font-family: sans-serif;
-      background: #fff;
       padding: 24px;
-      max-width: 420px;
+      max-width: 480px;
       margin: auto;
     }
-
-    h2 {
-      margin-bottom: 16px;
-    }
-
     label {
       display: block;
-      margin-top: 12px;
+      margin-top: 10px;
       font-weight: bold;
     }
-
     input {
       width: 100%;
       padding: 8px;
-      font-size: 14px;
       margin-top: 4px;
       box-sizing: border-box;
     }
-
     button {
       margin-top: 16px;
-      padding: 10px 14px;
-      font-size: 14px;
+      padding: 10px;
       cursor: pointer;
     }
-
-    canvas {
+    img {
       display: block;
       margin-top: 20px;
+      width: 360px;
+      height: 360px;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
 
-<h2>Data Entry</h2>
+<h3>Data Entry</h3>
 
-<label>
-  Bundle Number:
-  <input id="bundle" />
-</label>
+<label>Batch Number <input id="bn"></label>
+<label>Bundle ID <input id="bi"></label>
+<label>Cust Name <input id="cn"></label>
+<label>PO (Sales PO) <input id="po"></label>
+<label>Port <input id="pt"></label>
+<label>Heat No <input id="hn"></label>
+<label>Grade <input id="gr"></label>
+<label>Size <input id="sz"></label>
+<label>Length <input id="ln"></label>
+<label>Pieces <input id="pc"></label>
+<label>Shape <input id="sh"></label>
+<label>Tolerance <input id="tl"></label>
+<label>Net Weight <input id="nw"></label>
+<label>Gross Weight <input id="gw"></label>
 
-<label>
-  Heat No:
-  <input id="heat" />
-</label>
+<button id="download">Download QR</button>
 
-<label>
-  Net Weight:
-  <input id="weight" />
-</label>
+<img id="qr">
 
-<button id="export">Export URL as PNG</button>
+<canvas id="c" width="360" height="360" style="display:none"></canvas>
 
-<canvas id="qr"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 <script>
-  const fields = {
-    bundle: document.getElementById('bundle'),
-    heat: document.getElementById('heat'),
-    weight: document.getElementById('weight')
-  };
+  const fields = [
+    'bn','bi','cn','po','pt','hn','gr',
+    'sz','ln','pc','sh','tl','nw','gw'
+  ];
 
-  function encode(obj) {
-    return btoa(JSON.stringify(obj))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-  }
+  const els = {};
+  fields.forEach(id => els[id] = document.getElementById(id));
 
-  function decode(str) {
-    str = str.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(str));
-  }
+  const img = document.getElementById('qr');
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
 
-  function saveToURL() {
-    const data = {
-      bundle: fields.bundle.value,
-      heat: fields.heat.value,
-      weight: fields.weight.value
+  function update() {
+    const params = fields
+      .map(k => `${k}=${encodeURIComponent(els[k].value)}`)
+      .join('&');
+
+    location.hash = params;
+
+    const url = encodeURIComponent(location.href);
+    const qr =
+      `https://api.qrserver.com/v1/create-qr-code/` +
+      `?size=360x360&ecc=Q&margin=10&data=${url}`;
+
+    img.src = qr;
+
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = () => {
+      ctx.clearRect(0,0,360,360);
+      ctx.drawImage(im,0,0,360,360);
     };
-    location.hash = 'data=' + encode(data);
+    im.src = qr;
   }
 
-  function loadFromURL() {
-    const params = new URLSearchParams(location.hash.slice(1));
-    const d = params.get('data');
-    if (!d) return;
-    const data = decode(d);
-    fields.bundle.value = data.bundle || '';
-    fields.heat.value = data.heat || '';
-    fields.weight.value = data.weight || '';
-  }
+  fields.forEach(k => els[k].addEventListener('input', update));
 
-  Object.values(fields).forEach(input => {
-    input.addEventListener('input', saveToURL);
-  });
-
-  document.getElementById('export').onclick = () => {
-    const url = location.href;
-    QRCode.toCanvas(
-      document.getElementById('qr'),
-      url,
-      { width: 280 },
-      err => { if (err) console.error(err); }
-    );
+  document.getElementById('download').onclick = () => {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'qr.png';
+    a.click();
   };
 
-  loadFromURL();
+  // load from scanned URL
+  if (location.hash) {
+    const p = new URLSearchParams(location.hash.slice(1));
+    fields.forEach(k => els[k].value = p.get(k) || '');
+    update();
+  }
 </script>
 
 </body>
