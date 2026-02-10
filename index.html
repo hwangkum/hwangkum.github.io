@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -9,58 +9,112 @@
     body {
       font-family: sans-serif;
       padding: 24px;
-      max-width: 480px;
+      max-width: 720px;
       margin: auto;
+      position: relative;
     }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo img {
+      max-height: 60px;
+    }
+
+    h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 20px;
+    }
+
     label {
       display: block;
-      margin-top: 10px;
       font-weight: bold;
+      font-size: 14px;
     }
+
     input {
       width: 100%;
       padding: 8px;
       margin-top: 4px;
       box-sizing: border-box;
     }
+
     button {
-      margin-top: 16px;
-      padding: 10px;
-      cursor: pointer;
-    }
-    img {
-      display: block;
       margin-top: 20px;
+      padding: 10px 16px;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    img#qr {
+      display: block;
+      margin: 24px auto 0;
       width: 360px;
       height: 360px;
       border: 1px solid #ccc;
+    }
+
+    .footer {
+      position: fixed;
+      right: 12px;
+      bottom: 10px;
+      font-size: 11px;
+      color: #777;
+      text-align: right;
     }
   </style>
 </head>
 <body>
 
+<div class="cpy">
+  <img src="logo.png" alt="cpy_logo">
+</div>
+
 <h3>Data Entry</h3>
 
-<label>Batch Number <input id="bn"></label>
-<label>Bundle ID <input id="bi"></label>
-<label>Cust Name <input id="cn"></label>
-<label>PO (Sales PO) <input id="po"></label>
-<label>Port <input id="pt"></label>
-<label>Heat No <input id="hn"></label>
-<label>Grade <input id="gr"></label>
-<label>Size <input id="sz"></label>
-<label>Length <input id="ln"></label>
-<label>Pieces <input id="pc"></label>
-<label>Shape <input id="sh"></label>
-<label>Tolerance <input id="tl"></label>
-<label>Net Weight <input id="nw"></label>
-<label>Gross Weight <input id="gw"></label>
+<div class="grid">
+  <label>Batch Number <input id="bn"></label>
+  <label>Bundle ID <input id="bi"></label>
+
+  <label>Cust Name <input id="cn"></label>
+  <label>PO (Sales PO) <input id="po"></label>
+
+  <label>Port <input id="pt"></label>
+  <label>Heat No <input id="hn"></label>
+
+  <label>Grade <input id="gr"></label>
+  <label>Size <input id="sz"></label>
+
+  <label>Length <input id="ln"></label>
+  <label>Pieces <input id="pc"></label>
+
+  <label>Shape <input id="sh"></label>
+  <label>Tolerance <input id="tl"></label>
+
+  <label>Net Weight <input id="nw"></label>
+  <label>Gross Weight <input id="gw"></label>
+</div>
 
 <button id="download">Download QR</button>
 
 <img id="qr">
 
 <canvas id="c" width="360" height="360" style="display:none"></canvas>
+
+<div class="footer">
+  Confidential Notice<br>
+  Internal use only
+</div>
 
 <script>
   const fields = [
@@ -107,7 +161,6 @@
     a.click();
   };
 
-  // load from scanned URL
   if (location.hash) {
     const p = new URLSearchParams(location.hash.slice(1));
     fields.forEach(k => els[k].value = p.get(k) || '');
