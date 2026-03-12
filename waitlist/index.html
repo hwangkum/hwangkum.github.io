@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+
+<title>대기 현황</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+font-family:'Noto Sans KR',sans-serif;
+background:#f5f6fa;
+}
+
+.container{
+display:flex;
+height:100vh;
+}
+
+.panel{
+flex:1;
+padding:30px;
+box-sizing:border-box;
+}
+
+.title{
+font-size:32px;
+font-weight:900;
+background:#1976d2;
+color:white;
+padding:12px;
+text-align:center;
+margin-bottom:20px;
+}
+
+.called_number{
+font-size:200px;
+font-weight:900;
+text-align:center;
+margin-top:100px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:28px;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+th{
+background:#e3f2fd;
+font-weight:700;
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="panel">
+<div class="title">호출번호</div>
+<div id="called" class="called_number">-</div>
+</div>
+
+<div class="panel">
+<div class="title">대기순서</div>
+<table>
+<thead>
+<tr>
+<th>순번</th>
+<th>번호</th>
+</tr>
+</thead>
+<tbody id="waitlist"></tbody>
+</table>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+const supabaseUrl = "https://vuishapauihvznoutwsy.supabase.co"
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1aXNoYXBhdWlodnpub3V0d3N5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NTcxNjEsImV4cCI6MjA4NTUzMzE2MX0.GrUK-3JOlYsDdz_GUW8JH0HyFZ50PJ8OMeowm88sM0A"
+const sb = window.supabase.createClient(supabaseUrl,supabaseKey)
+
+
+async function loadData(){
+const now = new Date()
+const start = new Date(now.getFullYear(),now.getMonth(),now.getDate())
+const end = new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)
+
+const {data,error} = await sb
+.from("HK_SIHWA_KIOSK_WAIT_LIST")
+.select("id,is_called,created_at")
+.gte("created_at",start.toISOString())
+.lt("created_at",end.toISOString())
+
+if(error){
+console.log(error)
+return
+}
+
+render(data)
+
+}
+
+function render(data){
+
+let called = data
+.filter(r=>r.is_called)
+.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))
+
+let waiting = data
+.filter(r=>!r.is_called)
+.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
+
+if(called.length>0){
+document.getElementById("called").innerText = called[0].id
+}else{
+document.getElementById("called").innerText = "-"
+}
+
+const tbody = document.getElementById("waitlist")
+tbody.innerHTML=""
+let i=1
+waiting.forEach(r=>{
+const tr=document.createElement("tr")
+tr.innerHTML=`
+<td>${i}</td>
+<td>${r.id}</td>
+`
+tbody.appendChild(tr)
+i++
+})
+}
+
+loadData()
+setInterval(loadData,3000)
+</script>
+</body>
+</html>
