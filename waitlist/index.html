@@ -99,7 +99,7 @@ const end = new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)
 
 const {data,error} = await sb
 .from("HK_SIHWA_KIOSK_WAIT_LIST")
-.select("id,is_called,created_at")
+.select("id,is_called,created_at,called_at")
 .gte("created_at",start.toISOString())
 .lt("created_at",end.toISOString())
 
@@ -115,8 +115,8 @@ render(data)
 function render(data){
 
 let called = data
-.filter(r=>r.is_called)
-.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))
+.filter(r=>r.is_called && r.called_at)
+.sort((a,b)=>new Date(b.called_at)-new Date(a.called_at))
 
 let waiting = data
 .filter(r=>!r.is_called)
