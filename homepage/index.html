@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Designing Tomorrow, Today  -->
+<title>황금에스티 | 녹슬지 않는 환경을 만들어 가는 황금에스티</title>
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    html, body{
+        width:100%;
+        height:100%;
+        font-family:Arial, "Malgun Gothic", "맑은 고딕", sans-serif;
+        background:#000;
+        overflow-x:hidden;
+    }
+
+    a{
+        text-decoration:none;
+        color:inherit;
+    }
+
+    ul{
+        list-style:none;
+    }
+
+    .sns-icon{
+        width:30px;
+        height:30px;
+        object-fit:contain;
+    }
+
+
+    /* ===== Full video background ===== */
+    .video-bg-wrap{
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        z-index:1;
+        overflow:hidden;
+        background:#000;
+    }
+
+    .video-bg-wrap video{
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%, -50%);
+        min-width:100%;
+        min-height:100%;
+        width:auto;
+        height:auto;
+        object-fit:cover;
+        background:#000;
+    }
+
+    .video-darken{
+        position:absolute;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.38);
+        z-index:2;
+    }
+
+    /* ===== Main header ===== */
+    .header{
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        z-index:1000;
+        background:rgba(0,0,0,0.28);
+        backdrop-filter:blur(6px);
+        border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+
+    .logo_wrap{
+        position:relative;
+        max-width:1600px;
+        margin:0 auto;
+        height:100px;
+        display:flex;
+        align-items:center;
+        padding:0 30px;
+    }
+
+    .logo{
+        flex:0 0 auto;
+        font-size:28px;
+        font-weight:700;
+        color:#fff;
+        letter-spacing:1px;
+        margin-right:40px;
+        white-space:nowrap;
+    }
+
+    .gnb_wrap{
+        flex:1;
+        display:flex;
+        justify-content:center;
+    }
+
+    .gnb{
+        display:flex;
+        align-items:center;
+        gap:8px;
+    }
+
+    .gnb > li{
+        position:relative;
+    }
+
+    .gnb > li > span > a{
+        display:block;
+        padding:38px 18px;
+        color:#fff;
+        font-size:17px;
+        font-weight:600;
+        transition:0.2s ease;
+    }
+
+    .gnb > li:hover > span > a{
+        color:#d9c18a;
+    }
+
+    .sub-onemenu{
+        position:absolute;
+        top:100%;
+        left:50%;
+        transform:translateX(-50%);
+        min-width:220px;
+        background:rgba(10,10,10,0.92);
+        border:1px solid rgba(255,255,255,0.08);
+        border-radius:10px;
+        padding:10px 0;
+        display:none;
+        box-shadow:0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    .gnb > li:hover .sub-onemenu{
+        display:block;
+    }
+
+    .sub-onemenu li a{
+        display:block;
+        padding:12px 18px;
+        color:#fff;
+        font-size:14px;
+        white-space:nowrap;
+        transition:0.2s ease;
+    }
+
+    .sub-onemenu li a:hover{
+        background:rgba(255,255,255,0.06);
+        color:#d9c18a;
+    }
+
+    /* ===== Right side ===== */
+    .header-right{
+        display:flex;
+        align-items:center;
+        gap:18px;
+        margin-left:30px;
+    }
+
+    .top_sns ul{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    .sns-link{
+        width:34px;
+        height:34px;
+        border:1px solid rgba(255,255,255,0.25);
+        border-radius:50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff;
+        font-size:12px;
+        background:rgba(255,255,255,0.05);
+        transition:0.2s ease;
+    }
+
+    .sns-link:hover{
+        background:rgba(255,255,255,0.14);
+    }
+
+    .top_link{
+        position:relative;
+        color:#fff;
+        font-size:13px;
+        font-weight:600;
+    }
+
+    .top_link .link{
+        display:block;
+        padding:8px 12px;
+        border:1px solid rgba(255,255,255,0.22);
+        border-radius:20px;
+        background:rgba(255,255,255,0.05);
+    }
+
+    .top_link ul{
+        position:absolute;
+        top:42px;
+        right:0;
+        width:90px;
+        background:rgba(10,10,10,0.92);
+        border:1px solid rgba(255,255,255,0.08);
+        border-radius:8px;
+        display:none;
+        overflow:hidden;
+    }
+
+    .top_link:hover ul{
+        display:block;
+    }
+
+    .top_link ul li a{
+        display:block;
+        padding:10px 12px;
+        color:#fff;
+        font-size:13px;
+    }
+
+    .top_link ul li a:hover{
+        background:rgba(255,255,255,0.06);
+    }
+
+    .tmenu_wrap{
+        display:none;
+    }
+
+    .tmenu{
+        width:42px;
+        height:42px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border:1px solid rgba(255,255,255,0.2);
+        border-radius:8px;
+        background:rgba(255,255,255,0.05);
+        cursor:pointer;
+    }
+
+    .tmenu span,
+    .tmenu span::before,
+    .tmenu span::after{
+        display:block;
+        width:20px;
+        height:2px;
+        background:#fff;
+        position:relative;
+        content:"";
+    }
+
+    .tmenu span::before{
+        position:absolute;
+        top:-6px;
+        left:0;
+    }
+
+    .tmenu span::after{
+        position:absolute;
+        top:6px;
+        left:0;
+    }
+
+    /* ===== Mobile menu ===== */
+    .mgnb_wrap{
+        display:none;
+        background:rgba(8,8,8,0.96);
+        border-top:1px solid rgba(255,255,255,0.08);
+        padding:10px 20px 20px;
+    }
+
+    .mgnb > li{
+        border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+
+    .mgnb > li > a{
+        display:block;
+        padding:14px 0;
+        color:#fff;
+        font-size:16px;
+        font-weight:600;
+    }
+
+    .mgnb .sub-menu{
+        display:none;
+        padding:0 0 10px 12px;
+    }
+
+    .mgnb .sub-menu li a{
+        display:block;
+        padding:8px 0;
+        color:#ddd;
+        font-size:14px;
+    }
+
+    .mgnb > li.open .sub-menu{
+        display:block;
+    }
+
+    /* ===== Main hero content ===== */
+    .main_visual{
+        position:relative;
+        z-index:10;
+        width:100%;
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+    }
+
+    .hero-content{
+        position:relative;
+        width:100%;
+        max-width:1600px;
+        margin:0 auto;
+        padding:160px 40px 100px;
+        color:#fff;
+    }
+
+    .hero-inner{
+        max-width:760px;
+    }
+
+    .hero-eyebrow{
+        font-size:30px;
+        font-weight:500;
+        letter-spacing:0.5px;
+        margin-bottom:14px;
+        color:rgba(255,255,255,0.9);
+    }
+
+    .hero-title{
+        font-size:64px;
+        line-height:1.1;
+        font-weight:800;
+        margin-bottom:22px;
+    }
+
+    .hero-desc{
+        font-size:20px;
+        line-height:1.7;
+        color:rgba(255,255,255,0.9);
+        margin-bottom:36px;
+    }
+
+    .hero-buttons{
+        display:flex;
+        gap:14px;
+        flex-wrap:wrap;
+    }
+
+    .hero-btn{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        min-width:160px;
+        height:52px;
+        padding:0 22px;
+        border-radius:30px;
+        font-size:15px;
+        font-weight:700;
+        transition:0.2s ease;
+    }
+
+    .hero-btn.primary{
+        background:#d9c18a;
+        color:#111;
+    }
+
+    .hero-btn.primary:hover{
+        background:#e5cf9e;
+    }
+
+    .hero-btn.secondary{
+        border:1px solid rgba(255,255,255,0.28);
+        color:#fff;
+        background:rgba(255,255,255,0.05);
+    }
+
+    .hero-btn.secondary:hover{
+        background:rgba(255,255,255,0.12);
+    }
+
+    /* ===== Bottom scroll hint ===== */
+    .mouse-icon{
+        position:absolute;
+        left:50%;
+        bottom:28px;
+        transform:translateX(-50%);
+        z-index:20;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:10px;
+        color:#fff;
+    }
+
+    .wheel{
+        width:26px;
+        height:42px;
+        border:2px solid rgba(255,255,255,0.8);
+        border-radius:18px;
+        position:relative;
+    }
+
+    .wheel::after{
+        content:"";
+        position:absolute;
+        top:8px;
+        left:50%;
+        transform:translateX(-50%);
+        width:4px;
+        height:8px;
+        background:#fff;
+        border-radius:4px;
+        animation:wheelMove 1.4s infinite;
+    }
+
+    .arrow{
+        font-size:12px;
+        opacity:0.85;
+        letter-spacing:1px;
+    }
+
+    @keyframes wheelMove{
+        0%{ opacity:1; top:8px; }
+        100%{ opacity:0; top:20px; }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1280px){
+        .gnb > li > span > a{
+            padding:38px 12px;
+            font-size:15px;
+        }
+
+        .hero-title{
+            font-size:52px;
+        }
+    }
+
+    @media (max-width: 1024px){
+        .gnb_wrap,
+        .top_sns,
+        .top_link{
+            display:none;
+        }
+
+        .tmenu_wrap{
+            display:block;
+            margin-left:auto;
+        }
+
+        .logo_wrap{
+            height:80px;
+        }
+
+        .mgnb_wrap.show{
+            display:block;
+        }
+
+        .hero-content{
+            padding:130px 24px 90px;
+        }
+
+        .hero-title{
+            font-size:42px;
+        }
+
+        .hero-desc{
+            font-size:17px;
+        }
+    }
+
+    @media (max-width: 640px){
+        .logo{
+            font-size:22px;
+        }
+
+        .hero-eyebrow{
+            font-size:16px;
+        }
+
+        .hero-title{
+            font-size:32px;
+        }
+
+        .hero-desc{
+            font-size:15px;
+            line-height:1.6;
+        }
+
+        .hero-btn{
+            min-width:140px;
+            height:46px;
+            font-size:14px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="video-bg-wrap">
+    <video id="bgVideo" autoplay muted loop playsinline webkit-playsinline preload="auto">
+        <source src="https://www.hwangkum.com/file/video/0310_%EC%8B%9C%ED%99%94,%EB%8B%B9%EC%A7%84_HGST_LOOP_1m.mp4" type="video/mp4">
+    </video>
+    <div class="video-darken"></div>
+</div>
+
+<div class="header">
+    <div class="logo_wrap">
+        <h1 class="logo"><a href="#"><img src="src/bottom_logo.png" alt="hk_logo"></a></a></h1>
+
+        <div class="gnb_wrap">
+            <ul class="gnb">
+                <li class="dropdown dropdown-1">
+                    <span><a href="#" class="dropdowna">회사소개</a></span>
+                    <ul class="sub-onemenu">
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">윤리경영</a></li>
+                        <li><a href="#">연혁</a></li>
+                        <li><a href="#">사업장안내</a></li>
+                        <li><a href="#">CI</a></li>
+                        <li><a href="#">IR센터</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown dropdown-2">
+                    <span><a href="#" class="dropdowna">사업소개</a></span>
+                    <ul class="sub-onemenu">
+                        <li><a href="#">STAINLESS STEEL</a></li>
+                        <li><a href="#">TITAMAX</a></li>
+                        <li><a href="#">철강</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown dropdown-3">
+                    <span><a href="#" class="dropdowna">강종소개</a></span>
+                    <ul class="sub-onemenu">
+                        <li><a href="#">오스테나이트</a></li>
+                        <li><a href="#">페라이트</a></li>
+                        <li><a href="#">마르텐사이트</a></li>
+                        <li><a href="#">듀플렉스</a></li>
+                        <li><a href="#">고니켈</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown dropdown-4">
+                    <span><a href="#" class="dropdowna">제품소개</a></span>
+                    <ul class="sub-onemenu">
+                        <li><a href="#">STS 제품정보</a></li>
+                        <li><a href="#">STS 봉강/이형강</a></li>
+                        <li><a href="#">탄소강 제품정보</a></li>
+                        <li><a href="#">웹브로슈어</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown dropdown-6">
+                    <span><a href="#" class="dropdowna">문의</a></span>
+                    <ul class="sub-onemenu">
+                        <li><a href="#">견적문의</a></li>
+                        <li><a href="#">출고예약</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="header-right">
+            <div class="top_sns">
+                <ul>
+                    <li><a href="https://www.youtube.com/@HWANGKUM_OFFICIAL" target="_blank"><img src="src/ico_youtube.png" alt="youtube" class="sns-icon"></a></li>
+                    <li><a href="https://blog.naver.com/titamax4u/" target="_blank"><img src="src/ico_blog.png" alt="naver blog" class="sns-icon"></a></li>
+                    <li><a href="https://www.facebook.com/titamax4u/" target="_blank"><img src="src/ico_face.png" alt="facebook" class="sns-icon"></a></li>
+                    <li class="last"><a href="https://www.instagram.com/titamax_official/" target="_blank"><img src="src/ico_insta.png" alt="instagram" class="sns-icon"></a></li>
+                </ul>
+            </div>
+
+            <div class="top_link">
+                <a href="#" class="link"><span>KOR</span></a>
+                <ul>
+                    <li><a href="#">ENG</a></li>
+                    <li><a href="#">KOR</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tmenu_wrap">
+            <a href="#" class="tmenu" id="mobileMenuBtn"><span></span></a>
+        </div>
+    </div>
+
+    <div class="mgnb_wrap" id="mobileMenu">
+        <ul class="mgnb">
+            <li class="cdropdown">
+                <a href="#" class="dropdown-link">회사소개</a>
+                <ul class="sub-menu">
+                    <li><a href="#">회사소개</a></li>
+                    <li><a href="#">윤리경영</a></li>
+                    <li><a href="#">연혁</a></li>
+                    <li><a href="#">사업장안내</a></li>
+                    <li><a href="#">CI</a></li>
+                    <li><a href="#">IR센터</a></li>
+                </ul>
+            </li>
+
+            <li class="cdropdown">
+                <a href="#" class="dropdown-link">사업소개</a>
+                <ul class="sub-menu">
+                    <li><a href="#">STAINLESS STEEL</a></li>
+                    <li><a href="#">TITAMAX</a></li>
+                    <li><a href="#">철강</a></li>
+                </ul>
+            </li>
+
+            <li class="cdropdown">
+                <a href="#" class="dropdown-link">강종소개</a>
+                <ul class="sub-menu">
+                    <li><a href="#">오스테나이트</a></li>
+                    <li><a href="#">페라이트</a></li>
+                    <li><a href="#">마르텐사이트</a></li>
+                    <li><a href="#">듀플렉스</a></li>
+                    <li><a href="#">고니켈</a></li>
+                </ul>
+            </li>
+
+            <li class="cdropdown">
+                <a href="#" class="dropdown-link">제품소개</a>
+                <ul class="sub-menu">
+                    <li><a href="#">STS 제품정보</a></li>
+                    <li><a href="#">STS 봉강/이형강</a></li>
+                    <li><a href="#">탄소강 제품정보</a></li>
+                    <li><a href="#">웹브로슈어</a></li>
+                </ul>
+            </li>
+
+            <li class="cdropdown">
+                <a href="#" class="dropdown-link">문의</a>
+                <ul class="sub-menu">
+                    <li><a href="#">견적문의</a></li>
+                    <li><a href="#">출고예약</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Hero section over video -->
+<div class="main_visual">
+    <div class="hero-content">
+        <div class="hero-inner">
+            <div class="hero-eyebrow">Resistant to Extreme Condition,</div>
+            <h2 class="hero-title">310S, 321, DUPLEX</h2>
+            <p class="hero-desc">
+                원자재부터 가공·유통까지 아우르는 국내 대표 스테인리스 종합 솔루션 기업.
+                <br>
+                전국 물류·유통 네트워크와 안정적인 글로벌 공급망을 바탕으로 
+                고객의 다양한 요구에 신속하게 대응합니다.
+            </p>
+            <div class="hero-buttons">
+                <div class="hero-buttons">
+                    <a href="#" class="hero-btn primary video-preset active" data-video="https://www.hwangkum.com/file/video/0310_%EC%8B%9C%ED%99%94,%EB%8B%B9%EC%A7%84_HGST_LOOP_1m.mp4">1. 시화 + 당진</a>
+                    <a href="#" class="hero-btn secondary video-preset" data-video="https://www.hwangkum.com/file/video/0310_%EC%8B%9C%ED%99%94_HGST_LOOP_30.mp4">2. 시화</a>
+                    <a href="#" class="hero-btn secondary video-preset" data-video="https://www.hwangkum.com/file/video/0310_%EB%8B%B9%EC%A7%84_HGST_LOOP_1m.mp4">3. 당진</a>
+                    <a href="#" class="hero-btn secondary" id="toggleVideoBtn">영상 일시정지</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mobile menu toggle
+    document.getElementById("mobileMenuBtn").addEventListener("click", function(e){
+        e.preventDefault();
+        document.getElementById("mobileMenu").classList.toggle("show");
+    });
+
+    // Mobile submenu toggle
+    document.querySelectorAll(".mgnb > li > .dropdown-link").forEach(function(link){
+        link.addEventListener("click", function(e){
+            if(window.innerWidth <= 1024){
+                e.preventDefault();
+                this.parentElement.classList.toggle("open");
+            }
+        });
+    });
+
+    // Background video control
+    var bgVideo = document.getElementById("bgVideo");
+    var toggleVideoBtn = document.getElementById("toggleVideoBtn");
+    var presetButtons = document.querySelectorAll(".video-preset");
+
+    function updateVideoBtn(){
+        if(bgVideo.paused){
+            toggleVideoBtn.textContent = "영상 재생";
+        }else{
+            toggleVideoBtn.textContent = "영상 일시정지";
+        }
+    }
+
+    toggleVideoBtn.addEventListener("click", function(e){
+        e.preventDefault();
+
+        if(bgVideo.paused){
+            var p = bgVideo.play();
+            if(p !== undefined){
+                p.then(function(){
+                    updateVideoBtn();
+                }).catch(function(err){
+                    console.log("Video play blocked:", err);
+                });
+            }
+        }else{
+            bgVideo.pause();
+            updateVideoBtn();
+        }
+    });
+
+    bgVideo.addEventListener("play", updateVideoBtn);
+    bgVideo.addEventListener("pause", updateVideoBtn);
+
+    // Gentle autoplay nudge for browser compatibility
+    window.addEventListener("load", function(){
+        setTimeout(function(){
+            var p = bgVideo.play();
+            if(p !== undefined){
+                p.catch(function(err){
+                    console.log("Autoplay may be blocked:", err);
+                });
+            }
+        }, 150);
+    });
+
+    updateVideoBtn();
+
+    function setActivePreset(activeBtn){
+        presetButtons.forEach(function(btn){
+            btn.classList.remove("active");
+            btn.classList.remove("primary");
+            btn.classList.add("secondary");
+        });
+
+        activeBtn.classList.add("active");
+        activeBtn.classList.remove("secondary");
+        activeBtn.classList.add("primary");
+    }
+
+    presetButtons.forEach(function(btn){
+        btn.addEventListener("click", function(e){
+            e.preventDefault();
+
+            var newVideo = this.getAttribute("data-video");
+            if(!newVideo) return;
+
+            bgVideo.pause();
+            bgVideo.setAttribute("src", newVideo);
+            bgVideo.load();
+
+            var p = bgVideo.play();
+            if(p !== undefined){
+                p.then(function(){
+                    updateVideoBtn();
+                }).catch(function(err){
+                    console.log("Preset video play blocked:", err);
+                });
+            }
+
+            setActivePreset(btn);
+        });
+    });
+
+</script>
+
+</body>
+</html>
