@@ -2,139 +2,140 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>대기 현황</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap" rel="stylesheet">
 
 <style>
-body{
-margin:0;
-font-family:'Noto Sans',sans-serif;
-background:#f5f6fa;
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Noto Sans', sans-serif;
+  background: #f5f6fa;
 }
 
-.container{
-display:flex;
-flex-direction:column;
-height:100vh;
+.container {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1vh;
+  padding: 1vh 1vw;
+  box-sizing: border-box;
 }
 
-.ewt_panel{
-padding:20px 30px;
-box-sizing:border-box;
+.ewt_panel {
+  padding: 0;
+  box-sizing: border-box;
+  min-height: 0;
 }
 
-.bottom_row{
-display:flex;
-flex:1;
-min-height:0;
+.bottom_row {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 1vw;
+  min-height: 0;
 }
 
-.panel{
-flex:1;
-padding:20px 30px 30px 30px;
-box-sizing:border-box;
-overflow:auto;
+.panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.title{
-font-size:32px;
-font-weight:900;
-background:#1976d2;
-color:#fff;
-padding:12px;
-text-align:center;
-margin-bottom:20px;
+.title {
+  font-size: clamp(20px, 2.2vw, 32px);
+  font-weight: 900;
+  background: #1976d2;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  margin: 0 0 1vh 0;
 }
 
-.sub_title{
-font-size:22px;
-font-weight:700;
-text-align:right;
-margin:10px 0 14px 0;
-color:#333;
+.sub_title {
+  font-size: clamp(14px, 1.4vw, 22px);
+  font-weight: 700;
+  text-align: right;
+  margin: 0 0 1vh 0;
+  color: #333;
 }
 
-.called_number{
-font-size:200px;
-font-weight:900;
-text-align:center;
-margin-top:100px;
-line-height:1;
+.called_number {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(64px, 13vw, 170px);
+  font-weight: 900;
+  line-height: 1;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
-font-size:28px;
-background:#fff;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(16px, 1.9vw, 28px);
+  background: #fff;
 }
 
-th,td{
-padding:12px;
-border-bottom:1px solid #ddd;
-text-align:center;
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
 }
 
-th{
-background:#e3f2fd;
-font-weight:700;
+th {
+  background: #e3f2fd;
+  font-weight: 700;
 }
 
-.ewt_board{
-display:flex;
-gap:20px;
-justify-content:space-between;
-margin-top:10px;
+.ewt_board {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  min-height: 0;
 }
 
-.ewt_card{
-flex:1;
-background:#fff;
-border-radius:12px;
-padding:20px;
-text-align:center;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
+.ewt_card {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.ewt_gate{
-font-size:32px;
-font-weight:900;
-margin-bottom:10px;
+.ewt_gate {
+  font-size: clamp(18px, 2vw, 32px);
+  font-weight: 900;
+  margin-bottom: 8px;
 }
 
-.ewt_status{
-font-size:40px;
-font-weight:900;
-padding:14px 10px;
-border-radius:10px;
-color:#fff;
+.ewt_status {
+  font-size: clamp(22px, 2.6vw, 40px);
+  font-weight: 900;
+  padding: 10px 8px;
+  border-radius: 10px;
+  color: #fff;
 }
 
-.status_green{
-background:#2e7d32;
-}
-
-.status_yellow{
-background:#f9a825;
-color:#111;
-}
-
-.status_red{
-background:#c62828;
-}
+.status_green { background: #2e7d32; }
+.status_yellow { background: #f9a825; color: #111; }
+.status_red { background: #c62828; }
 </style>
 </head>
 
 <body>
 <div class="container">
-
   <div class="ewt_panel">
     <div class="title">현재 출고 현황</div>
     <div id="ewt_updated_at" class="sub_title">측정 시간: -</div>
     <div id="ewt_board" class="ewt_board"></div>
   </div>
-
-  <br><br>
 
   <div class="bottom_row">
     <div class="panel">
@@ -155,7 +156,6 @@ background:#c62828;
       </table>
     </div>
   </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -163,6 +163,8 @@ background:#c62828;
 const supabaseUrl = "https://vuishapauihvznoutwsy.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1aXNoYXBhdWlodnpub3V0d3N5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NTcxNjEsImV4cCI6MjA4NTUzMzE2MX0.GrUK-3JOlYsDdz_GUW8JH0HyFZ50PJ8OMeowm88sM0A"
 const sb = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+let lastCalledId = "-"
 
 function formatDateNoSeconds(value){
   if(!value) return "-"
@@ -188,6 +190,17 @@ function gateSortValue(gate){
   return isNaN(n) ? Number.MAX_SAFE_INTEGER : n
 }
 
+function isCalledValue(v){
+  if (v === true || v === 1) return true
+  const s = String(v).toLowerCase()
+  return s === "true" || s === "t" || s === "1" || s === "y"
+}
+
+function timeMs(v){
+  const t = Date.parse(v || "")
+  return Number.isNaN(t) ? 0 : t
+}
+
 async function loadWaitList(){
   const now = new Date()
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -209,14 +222,17 @@ async function loadWaitList(){
 
 function renderWaitList(data){
   const called = data
-    .filter(r => r.is_called && r.called_at)
-    .sort((a, b) => new Date(b.called_at) - new Date(a.called_at))
+    .filter(r => isCalledValue(r?.is_called) || !!r?.called_at)
+    .sort((a, b) => timeMs(b.called_at || b.created_at) - timeMs(a.called_at || a.created_at))
 
   const waiting = data
-    .filter(r => !r.is_called)
-    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    .filter(r => !isCalledValue(r?.is_called))
+    .sort((a, b) => timeMs(a.created_at) - timeMs(b.created_at))
 
-  document.getElementById("called").innerText = called.length > 0 ? called[0].id : "-"
+  if (called.length > 0) {
+    lastCalledId = called[0].id
+  }
+  document.getElementById("called").innerText = lastCalledId
 
   const tbody = document.getElementById("waitlist")
   tbody.innerHTML = ""
