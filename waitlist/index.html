@@ -2,38 +2,56 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-
 <title>대기 현황</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap" rel="stylesheet">
 
 <style>
-
 body{
 margin:0;
-font-family:'Noto Sans KR',sans-serif;
+font-family:'Noto Sans',sans-serif;
 background:#f5f6fa;
 }
 
 .container{
 display:flex;
+flex-direction:column;
 height:100vh;
+}
+
+.ewt_panel{
+padding:20px 30px;
+box-sizing:border-box;
+}
+
+.bottom_row{
+display:flex;
+flex:1;
+min-height:0;
 }
 
 .panel{
 flex:1;
-padding:30px;
+padding:20px 30px 30px 30px;
 box-sizing:border-box;
+overflow:auto;
 }
 
 .title{
 font-size:32px;
 font-weight:900;
 background:#1976d2;
-color:white;
+color:#fff;
 padding:12px;
 text-align:center;
 margin-bottom:20px;
+}
+
+.sub_title{
+font-size:22px;
+font-weight:700;
+text-align:right;
+margin:10px 0 14px 0;
+color:#333;
 }
 
 .called_number{
@@ -41,12 +59,14 @@ font-size:200px;
 font-weight:900;
 text-align:center;
 margin-top:100px;
+line-height:1;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
 font-size:28px;
+background:#fff;
 }
 
 th,td{
@@ -60,90 +80,212 @@ background:#e3f2fd;
 font-weight:700;
 }
 
+.ewt_board{
+display:flex;
+gap:20px;
+justify-content:space-between;
+margin-top:10px;
+}
+
+.ewt_card{
+flex:1;
+background:#fff;
+border-radius:12px;
+padding:20px;
+text-align:center;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.ewt_gate{
+font-size:32px;
+font-weight:900;
+margin-bottom:10px;
+}
+
+.ewt_status{
+font-size:40px;
+font-weight:900;
+padding:14px 10px;
+border-radius:10px;
+color:#fff;
+}
+
+.status_green{
+background:#2e7d32;
+}
+
+.status_yellow{
+background:#f9a825;
+color:#111;
+}
+
+.status_red{
+background:#c62828;
+}
 </style>
 </head>
 
 <body>
 <div class="container">
-<div class="panel">
-<div class="title">호출번호</div>
-<div id="called" class="called_number">-</div>
-</div>
 
-<div class="panel">
-<div class="title">대기순서</div>
-<table>
-<thead>
-<tr>
-<th>순번</th>
-<th>번호</th>
-</tr>
-</thead>
-<tbody id="waitlist"></tbody>
-</table>
-</div>
+  <div class="ewt_panel">
+    <div class="title">현재 출고 현황</div>
+    <div id="ewt_updated_at" class="sub_title">측정 시간: -</div>
+    <div id="ewt_board" class="ewt_board"></div>
+  </div>
+
+  <br><br>
+
+  <div class="bottom_row">
+    <div class="panel">
+      <div class="title">호출번호</div>
+      <div id="called" class="called_number">-</div>
+    </div>
+
+    <div class="panel">
+      <div class="title">대기순서</div>
+      <table>
+        <thead>
+          <tr>
+            <th>순번</th>
+            <th>번호</th>
+          </tr>
+        </thead>
+        <tbody id="waitlist"></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-
 const supabaseUrl = "https://vuishapauihvznoutwsy.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1aXNoYXBhdWlodnpub3V0d3N5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NTcxNjEsImV4cCI6MjA4NTUzMzE2MX0.GrUK-3JOlYsDdz_GUW8JH0HyFZ50PJ8OMeowm88sM0A"
-const sb = window.supabase.createClient(supabaseUrl,supabaseKey)
+const sb = window.supabase.createClient(supabaseUrl, supabaseKey)
 
+function formatDateNoSeconds(value){
+  if(!value) return "-"
+  const d = new Date(value)
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  const dd = String(d.getDate()).padStart(2, "0")
+  const hh = String(d.getHours()).padStart(2, "0")
+  const mi = String(d.getMinutes()).padStart(2, "0")
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}`
+}
+
+function getStatusClass(status){
+  if(status === "원활") return "status_green"
+  if(status === "지연") return "status_yellow"
+  if(status === "혼잡") return "status_red"
+  return ""
+}
+
+function gateSortValue(gate){
+  if(gate === "5,6동") return 5.5
+  const n = parseInt(String(gate).replace(/\D/g, ""), 10)
+  return isNaN(n) ? Number.MAX_SAFE_INTEGER : n
+}
+
+async function loadWaitList(){
+  const now = new Date()
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+
+  const { data, error } = await sb
+    .from("HK_SIHWA_KIOSK_WAIT_LIST")
+    .select("id,is_called,created_at,called_at")
+    .gte("created_at", start.toISOString())
+    .lt("created_at", end.toISOString())
+
+  if(error){
+    console.log(error)
+    return
+  }
+
+  renderWaitList(data || [])
+}
+
+function renderWaitList(data){
+  const called = data
+    .filter(r => r.is_called && r.called_at)
+    .sort((a, b) => new Date(b.called_at) - new Date(a.called_at))
+
+  const waiting = data
+    .filter(r => !r.is_called)
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+
+  document.getElementById("called").innerText = called.length > 0 ? called[0].id : "-"
+
+  const tbody = document.getElementById("waitlist")
+  tbody.innerHTML = ""
+
+  let i = 1
+  waiting.forEach(r => {
+    const tr = document.createElement("tr")
+    tr.innerHTML = `
+      <td>${i}</td>
+      <td>${r.id}</td>
+    `
+    tbody.appendChild(tr)
+    i++
+  })
+}
+
+async function loadEWT(){
+  const { data, error } = await sb
+    .from("HK_SIHWA_EWT")
+    .select("gate,status,updated_at")
+
+  if(error){
+    console.log(error)
+    return
+  }
+
+  renderEWT(data || [])
+}
+
+function renderEWT(data){
+  const board = document.getElementById("ewt_board")
+  const updatedAtEl = document.getElementById("ewt_updated_at")
+
+  board.innerHTML = ""
+
+  if(data.length === 0){
+    updatedAtEl.innerText = "측정 시간: -"
+    return
+  }
+
+  const maxUpdatedAt = data.reduce((max, row) => {
+    if(!max) return row.updated_at
+    return new Date(row.updated_at) > new Date(max) ? row.updated_at : max
+  }, null)
+
+  updatedAtEl.innerText = `측정 시간: ${formatDateNoSeconds(maxUpdatedAt)}`
+
+  data
+    .sort((a, b) => gateSortValue(a.gate) - gateSortValue(b.gate) || String(a.gate).localeCompare(String(b.gate)))
+    .forEach(r => {
+      const card = document.createElement("div")
+      card.className = "ewt_card"
+      card.innerHTML = `
+        <div class="ewt_gate">${r.gate}</div>
+        <div class="ewt_status ${getStatusClass(r.status)}">${r.status}</div>
+      `
+      board.appendChild(card)
+    })
+}
 
 async function loadData(){
-const now = new Date()
-const start = new Date(now.getFullYear(),now.getMonth(),now.getDate())
-const end = new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)
-
-const {data,error} = await sb
-.from("HK_SIHWA_KIOSK_WAIT_LIST")
-.select("id,is_called,created_at,called_at")
-.gte("created_at",start.toISOString())
-.lt("created_at",end.toISOString())
-
-if(error){
-console.log(error)
-return
-}
-
-render(data)
-
-}
-
-function render(data){
-
-let called = data
-.filter(r=>r.is_called && r.called_at)
-.sort((a,b)=>new Date(b.called_at)-new Date(a.called_at))
-
-let waiting = data
-.filter(r=>!r.is_called)
-.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
-
-if(called.length>0){
-document.getElementById("called").innerText = called[0].id
-}else{
-document.getElementById("called").innerText = "-"
-}
-
-const tbody = document.getElementById("waitlist")
-tbody.innerHTML=""
-let i=1
-waiting.forEach(r=>{
-const tr=document.createElement("tr")
-tr.innerHTML=`
-<td>${i}</td>
-<td>${r.id}</td>
-`
-tbody.appendChild(tr)
-i++
-})
+  await Promise.all([
+    loadWaitList(),
+    loadEWT()
+  ])
 }
 
 loadData()
-setInterval(loadData,3000)
+setInterval(loadData, 3000)
 </script>
 </body>
 </html>
