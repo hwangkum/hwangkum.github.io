@@ -221,9 +221,9 @@ async function loadWaitList(){
 }
 
 function renderWaitList(data){
-  const called = data
-    .filter(r => isCalledValue(r?.is_called) || !!r?.called_at)
-    .sort((a, b) => timeMs(b.called_at || b.created_at) - timeMs(a.called_at || a.created_at))
+    const called = data
+    .filter(r => isCalledValue(r?.is_called))
+    .sort((a, b) => timeMs(b.called_at) - timeMs(a.called_at))
 
   const waiting = data
     .filter(r => !isCalledValue(r?.is_called))
