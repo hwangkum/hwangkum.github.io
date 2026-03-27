@@ -133,7 +133,7 @@ th {
 <div class="container">
   <div class="ewt_panel">
     <div class="title">현재 출고 현황</div>
-    <div id="ewt_updated_at" class="sub_title">측정 시간: -</div>
+    <div id="ewt_updated_at" class="sub_title">업데이트 시간: -</div>
     <div id="ewt_board" class="ewt_board"></div>
   </div>
 
@@ -269,7 +269,7 @@ function renderEWT(data){
   board.innerHTML = ""
 
   if(data.length === 0){
-    updatedAtEl.innerText = "측정 시간: -"
+    updatedAtEl.innerText = "업데이트 시간: -"
     return
   }
 
@@ -278,7 +278,7 @@ function renderEWT(data){
     return new Date(row.updated_at) > new Date(max) ? row.updated_at : max
   }, null)
 
-  updatedAtEl.innerText = `측정 시간: ${formatDateNoSeconds(maxUpdatedAt)}`
+  updatedAtEl.innerText = `업데이트 시간: ${formatDateNoSeconds(maxUpdatedAt)}`
 
   data
     .sort((a, b) => gateSortValue(a.gate) - gateSortValue(b.gate) || String(a.gate).localeCompare(String(b.gate)))
