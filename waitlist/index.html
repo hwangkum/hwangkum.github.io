@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>대기 현황</title>
+<title>대기현황</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap" rel="stylesheet">
 
 <style>
@@ -19,13 +19,15 @@ html, body {
 .container {
   height: 100dvh;
   display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 1vh;
-  padding: 1vh 1vw;
+  grid-template-rows: minmax(0, 0.44fr) minmax(0, 0.56fr);
+  gap: 0.6vh;
+  padding: 0.7vh 0.8vw;
   box-sizing: border-box;
 }
 
 .ewt_panel {
+  display: flex;
+  flex-direction: column;
   padding: 0;
   box-sizing: border-box;
   min-height: 0;
@@ -34,7 +36,7 @@ html, body {
 .bottom_row {
   display: grid;
   grid-template-columns: 1fr 1.15fr;
-  gap: 1vw;
+  gap: 0.8vw;
   min-height: 0;
 }
 
@@ -46,81 +48,124 @@ html, body {
 }
 
 .title {
-  font-size: clamp(20px, 2.2vw, 32px);
+  font-size: clamp(28px, 3.2vh, 46px);
   font-weight: 900;
   background: #1976d2;
   color: #fff;
-  padding: 10px;
+  padding: 0.75vh 0.5vw;
   text-align: center;
-  margin: 0 0 1vh 0;
+  margin: 0 0 0.6vh 0;
+  line-height: 1.15;
 }
 
 .sub_title {
-  font-size: clamp(14px, 1.4vw, 22px);
+  font-size: clamp(20px, 2.1vh, 32px);
   font-weight: 700;
   text-align: right;
-  margin: 0 0 1vh 0;
+  margin: 0 0 0.6vh 0;
   color: #333;
+  line-height: 1.15;
 }
 
 .called_number {
   flex: 1;
   margin: 0;
+  padding: 0.4vh 0.35vw;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(64px, 13vw, 170px);
+  font-size: clamp(140px, min(34vh, 24vw), 430px);
   font-weight: 900;
-  line-height: 1;
+  line-height: 0.95;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: clamp(16px, 1.9vw, 28px);
+.waitlist_grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 0.5vh 0.45vw;
+}
+
+.wait_card {
+  min-height: 0;
   background: #fff;
+  border: 1px solid #d9e2ec;
+  border-radius: 10px;
+  padding: 0.35vh 0.28vw;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: center;
+.wait_seq {
+  font-size: clamp(28px, 2.8vh, 40px);
+  font-weight: 900;
+  color: #3b4a5a;
+  line-height: 1;
+  text-align: left;
 }
 
-th {
-  background: #e3f2fd;
-  font-weight: 700;
+.wait_id {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(66px, 8.2vh, 120px);
+  font-weight: 900;
+  line-height: 0.95;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .ewt_board {
   display: flex;
-  gap: 12px;
+  flex: 1;
+  gap: 0.55vw;
   justify-content: space-between;
+  align-items: stretch;
   min-height: 0;
 }
 
 .ewt_card {
   flex: 1;
+  display: grid;
+  grid-template-rows: 1.65fr 3.35fr;
   min-width: 0;
   background: #fff;
   border-radius: 12px;
-  padding: 12px 8px;
+  padding: 0.55vh 0.3vw;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .ewt_gate {
-  font-size: clamp(18px, 2vw, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(68px, 7.2vh, 98px);
   font-weight: 900;
-  margin-bottom: 8px;
+  margin-bottom: 0.1vh;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .ewt_status {
-  font-size: clamp(22px, 2.6vw, 40px);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(68px, 7vh, 98px);
   font-weight: 900;
-  padding: 10px 8px;
+  padding: 0.2vh 0.15vw;
   border-radius: 10px;
   color: #fff;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .status_green { background: #2e7d32; }
@@ -145,15 +190,7 @@ th {
 
     <div class="panel">
       <div class="title">대기순서</div>
-      <table>
-        <thead>
-          <tr>
-            <th>순번</th>
-            <th>번호</th>
-          </tr>
-        </thead>
-        <tbody id="waitlist"></tbody>
-      </table>
+      <div id="waitlist" class="waitlist_grid"></div>
     </div>
   </div>
 </div>
@@ -221,7 +258,7 @@ async function loadWaitList(){
 }
 
 function renderWaitList(data){
-    const called = data
+  const called = data
     .filter(r => isCalledValue(r?.is_called))
     .sort((a, b) => timeMs(b.called_at) - timeMs(a.called_at))
 
@@ -234,19 +271,19 @@ function renderWaitList(data){
   }
   document.getElementById("called").innerText = lastCalledId
 
-  const tbody = document.getElementById("waitlist")
-  tbody.innerHTML = ""
+  const grid = document.getElementById("waitlist")
+  grid.innerHTML = ""
 
-  let i = 1
-  waiting.forEach(r => {
-    const tr = document.createElement("tr")
-    tr.innerHTML = `
-      <td>${i}</td>
-      <td>${r.id}</td>
+  for (let i = 0; i < 6; i++) {
+    const r = waiting[i]
+    const card = document.createElement("div")
+    card.className = "wait_card"
+    card.innerHTML = `
+      <div class="wait_seq">순번 ${i + 1}</div>
+      <div class="wait_id">${r ? r.id : "-"}</div>
     `
-    tbody.appendChild(tr)
-    i++
-  })
+    grid.appendChild(card)
+  }
 }
 
 async function loadEWT(){
