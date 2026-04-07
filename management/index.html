@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>CSV Data Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      color: #222;
+      background: #fff;
+    }
+
+    .cpy {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .cpy img {
+      max-height: 60px;
+      max-width: 220px;
+      object-fit: contain;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 0 0 20px;
+    }
+
+    .empty-message {
+      border: 1px dashed #ccc;
+      border-radius: 10px;
+      padding: 28px 20px;
+      text-align: center;
+      color: #666;
+      margin-bottom: 16px;
+      background: #fafafa;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fff;
+      display: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #f1f1f1;
+      z-index: 2;
+      border-bottom: 2px solid #ccc;
+      font-weight: bold;
+      text-align: left;
+      padding: 12px 10px;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      border-top: 1px solid #e5e5e5;
+      padding: 0;
+      vertical-align: top;
+    }
+
+    tbody td input {
+      width: 100%;
+      border: 0;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: transparent;
+      outline: none;
+    }
+
+    tbody td input:focus {
+      background: #fffbe8;
+    }
+
+    .bottom-bar {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #111;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <div class="cpy">
+    <img src="logo.png" alt="company logo" onerror="this.style.display='none'">
+  </div>
+
+  <h2>엑셀변환</h2>
+
+  <div id="tableWrap" class="table-wrap">
+    <table id="dataTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="bottom-bar">
+    <button id="downloadXlsx" disabled>다운로드</button>
+  </div>
+
+  <script>
+    const thead = document.querySelector('#dataTable thead');
+    const tbody = document.querySelector('#dataTable tbody');
+    const tableWrap = document.getElementById('tableWrap');
+    const emptyMessage = document.getElementById('emptyMessage');
+    const downloadXlsxBtn = document.getElementById('downloadXlsx');
+
+    let headers = [];
+
+    function parseCsvLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        const next = line[i + 1];
+
+        if (ch === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+
+      result.push(current);
+      return result;
+    }
+
+    function escapeCsvValue(value) {
+      const str = String(value ?? '');
+      if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+        return '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }
+
+    function showTable() {
+      tableWrap.style.display = 'block';
+      emptyMessage.style.display = 'none';
+      downloadXlsxBtn.disabled = false;
+    }
+
+    function buildHeader(headerRow) {
+      thead.innerHTML = '';
+      const tr = document.createElement('tr');
+
+      headerRow.forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        tr.appendChild(th);
+      });
+
+      thead.appendChild(tr);
+    }
+
+    function buildBody(rows) {
+      tbody.innerHTML = '';
+
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+
+        headers.forEach((_, index) => {
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = row[index] ?? '';
+          td.appendChild(input);
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function buildTableFromCsv(raw) {
+      const trimmed = (raw || '').trim();
+
+      const lines = trimmed
+        .split(/\r?\n/)
+        .filter(line => line.trim() !== '');
+
+
+      headers = parseCsvLine(lines[0]);
+      const rows = lines.slice(1).map(parseCsvLine);
+
+      buildHeader(headers);
+      buildBody(rows);
+      showTable();
+      saveToHash();
+    }
+
+    function collectTableData() {
+      const rows = [];
+      const trList = tbody.querySelectorAll('tr');
+
+      trList.forEach(tr => {
+        const row = [];
+        tr.querySelectorAll('input').forEach(input => {
+          row.push(input.value);
+        });
+        rows.push(row);
+      });
+
+      return rows;
+    }
+
+    function tableToCsv() {
+      const lines = [];
+      lines.push(headers.map(escapeCsvValue).join(','));
+
+      const rows = collectTableData();
+      rows.forEach(row => {
+        lines.push(row.map(escapeCsvValue).join(','));
+      });
+
+      return lines.join('\n');
+    }
+
+    function downloadXlsx() {
+      if (!headers.length) return;
+
+      const rows = collectTableData();
+      const worksheetData = [headers, ...rows];
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
+      XLSX.writeFile(wb, 'edited_data.xlsx');
+    }
+
+    function saveToHash() {
+      if (!headers.length) return;
+      const csv = tableToCsv();
+      location.hash = encodeURIComponent(csv);
+    }
+
+    function loadFromHash() {
+      if (!location.hash) {
+        return;
+      }
+
+      const decoded = decodeURIComponent(location.hash.slice(1));
+      buildTableFromCsv(decoded);
+    }
+
+    downloadXlsxBtn.addEventListener('click', downloadXlsx);
+    tbody.addEventListener('input', saveToHash);
+
+    loadFromHash();
+  </script>
+</body>
+</html>
