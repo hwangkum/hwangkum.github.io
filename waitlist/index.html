@@ -17,7 +17,12 @@ html, body {
 }
 
 .container {
+  /* Chrome 70 fallback */
+  height: 100vh;
+
+  /* Modern browsers */
   height: 100dvh;
+
   display: grid;
   grid-template-rows: minmax(0, 0.44fr) minmax(0, 0.56fr);
   gap: 0.6vh;
@@ -48,7 +53,12 @@ html, body {
 }
 
 .title {
+  /* Chrome 70 fallback */
+  font-size: 3.2vh;
+
+  /* Modern browsers */
   font-size: clamp(28px, 3.2vh, 46px);
+
   font-weight: 900;
   background: #1976d2;
   color: #fff;
@@ -59,7 +69,12 @@ html, body {
 }
 
 .sub_title {
+  /* Chrome 70 fallback */
+  font-size: 2.1vh;
+
+  /* Modern browsers */
   font-size: clamp(20px, 2.1vh, 32px);
+
   font-weight: 700;
   text-align: right;
   margin: 0 0 0.6vh 0;
@@ -75,7 +90,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* Chrome 70 fallback */
+  font-size: 34vh;
+
+  /* Modern browsers */
   font-size: clamp(140px, min(34vh, 24vw), 430px);
+
   font-weight: 900;
   line-height: 0.95;
   white-space: nowrap;
@@ -103,7 +124,12 @@ html, body {
 }
 
 .wait_seq {
+  /* Chrome 70 fallback */
+  font-size: 2.8vh;
+
+  /* Modern browsers */
   font-size: clamp(28px, 2.8vh, 40px);
+
   font-weight: 900;
   color: #3b4a5a;
   line-height: 1;
@@ -115,7 +141,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* Chrome 70 fallback */
+  font-size: 8.2vh;
+
+  /* Modern browsers */
   font-size: clamp(66px, 8.2vh, 120px);
+
   font-weight: 900;
   line-height: 0.95;
   white-space: nowrap;
@@ -125,10 +157,14 @@ html, body {
 .ewt_board {
   display: flex;
   flex: 1;
-  gap: 0.55vw;
   justify-content: space-between;
   align-items: stretch;
   min-height: 0;
+}
+
+/* Compatible replacement for flex gap */
+.ewt_card + .ewt_card {
+  margin-left: 0.55vw;
 }
 
 .ewt_card {
@@ -147,7 +183,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* Chrome 70 fallback */
+  font-size: 7.2vh;
+
+  /* Modern browsers */
   font-size: clamp(68px, 7.2vh, 98px);
+
   font-weight: 900;
   margin-bottom: 0.1vh;
   line-height: 1;
@@ -159,7 +201,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* Chrome 70 fallback */
+  font-size: 7vh;
+
+  /* Modern browsers */
   font-size: clamp(68px, 7vh, 98px);
+
   font-weight: 900;
   padding: 0.2vh 0.15vw;
   border-radius: 10px;
@@ -168,9 +216,18 @@ html, body {
   white-space: nowrap;
 }
 
-.status_green { background: #2e7d32; }
-.status_yellow { background: #f9a825; color: #111; }
-.status_red { background: #c62828; }
+.status_green {
+  background: #2e7d32;
+}
+
+.status_yellow {
+  background: #f9a825;
+  color: #111;
+}
+
+.status_red {
+  background: #c62828;
+}
 </style>
 </head>
 
@@ -195,143 +252,179 @@ html, body {
   </div>
 </div>
 
-<!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+
 <script>
 const supabaseUrl = "https://vuishapauihvznoutwsy.supabase.co"
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1aXNoYXBhdWlodnpub3V0d3N5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NTcxNjEsImV4cCI6MjA4NTUzMzE2MX0.GrUK-3JOlYsDdz_GUW8JH0HyFZ50PJ8OMeowm88sM0A"
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1aXNoYXBhdWlodnpub3V0d3N5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NTcxNjEsImV4cCI6MjA4NTUzMzE2MX0.GrUK-
+3JOlYsDdz_GUW8JH0HyFZ50PJ8OMeowm88sM0A"
+
 const sb = window.supabase.createClient(supabaseUrl, supabaseKey)
 
 let lastCalledId = "-"
 
-function formatDateNoSeconds(value){
-  if(!value) return "-"
+function formatDateNoSeconds(value) {
+  if (!value) return "-"
+
   const d = new Date(value)
   const yyyy = d.getFullYear()
   const mm = String(d.getMonth() + 1).padStart(2, "0")
   const dd = String(d.getDate()).padStart(2, "0")
   const hh = String(d.getHours()).padStart(2, "0")
   const mi = String(d.getMinutes()).padStart(2, "0")
+
   return `${yyyy}-${mm}-${dd} ${hh}:${mi}`
 }
 
-function getStatusClass(status){
-  if(status === "원활") return "status_green"
-  if(status === "지연") return "status_yellow"
-  if(status === "혼잡") return "status_red"
+function getStatusClass(status) {
+  if (status === "원활") return "status_green"
+  if (status === "지연") return "status_yellow"
+  if (status === "혼잡") return "status_red"
   return ""
 }
 
-function gateSortValue(gate){
-  if(gate === "5,6동") return 5.5
+function gateSortValue(gate) {
+  if (gate === "5,6동") return 5.5
+
   const n = parseInt(String(gate).replace(/\D/g, ""), 10)
   return isNaN(n) ? Number.MAX_SAFE_INTEGER : n
 }
 
-function isCalledValue(v){
-  if (v === true || v === 1) return true
-  const s = String(v).toLowerCase()
-  return s === "true" || s === "t" || s === "1" || s === "y"
+function isCalledValue(value) {
+  if (value === true || value === 1) return true
+
+  const normalized = String(value).toLowerCase()
+
+  return (
+    normalized === "true" ||
+    normalized === "t" ||
+    normalized === "1" ||
+    normalized === "y"
+  )
 }
 
-function timeMs(v){
-  const t = Date.parse(v || "")
-  return Number.isNaN(t) ? 0 : t
+function timeMs(value) {
+  const time = Date.parse(value || "")
+  return Number.isNaN(time) ? 0 : time
 }
 
-async function loadWaitList(){
+async function loadWaitList() {
   const now = new Date()
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  const start = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  )
+  const end = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1
+  )
 
-  const { data, error } = await sb
+  const result = await sb
     .from("HK_SIHWA_KIOSK_WAIT_LIST")
     .select("id,is_called,created_at,called_at")
     .gte("created_at", start.toISOString())
     .lt("created_at", end.toISOString())
 
-  if(error){
-    console.log(error)
+  if (result.error) {
+    console.log(result.error)
     return
   }
 
-  renderWaitList(data || [])
+  renderWaitList(result.data || [])
 }
 
-function renderWaitList(data){
+function renderWaitList(data) {
   const called = data
-    .filter(r => r && isCalledValue(r.is_called))
+    .filter(row => row && isCalledValue(row.is_called))
     .sort((a, b) => timeMs(b.called_at) - timeMs(a.called_at))
 
   const waiting = data
-    .filter(r => r && !isCalledValue(r.is_called))
+    .filter(row => row && !isCalledValue(row.is_called))
     .sort((a, b) => timeMs(a.created_at) - timeMs(b.created_at))
 
   if (called.length > 0) {
     lastCalledId = called[0].id
   }
+
   document.getElementById("called").innerText = lastCalledId
 
   const grid = document.getElementById("waitlist")
   grid.innerHTML = ""
 
   for (let i = 0; i < 6; i++) {
-    const r = waiting[i]
+    const row = waiting[i]
     const card = document.createElement("div")
+
     card.className = "wait_card"
     card.innerHTML = `
       <div class="wait_seq">순번 ${i + 1}</div>
-      <div class="wait_id">${r ? r.id : "-"}</div>
+      <div class="wait_id">${row ? row.id : "-"}</div>
     `
+
     grid.appendChild(card)
   }
 }
 
-async function loadEWT(){
-  const { data, error } = await sb
+async function loadEWT() {
+  const result = await sb
     .from("HK_SIHWA_EWT")
     .select("gate,status,updated_at")
 
-  if(error){
-    console.log(error)
+  if (result.error) {
+    console.log(result.error)
     return
   }
 
-  renderEWT(data || [])
+  renderEWT(result.data || [])
 }
 
-function renderEWT(data){
+function renderEWT(data) {
   const board = document.getElementById("ewt_board")
-  const updatedAtEl = document.getElementById("ewt_updated_at")
+  const updatedAtElement = document.getElementById("ewt_updated_at")
 
   board.innerHTML = ""
 
-  if(data.length === 0){
-    updatedAtEl.innerText = "업데이트 시간: -"
+  if (data.length === 0) {
+    updatedAtElement.innerText = "업데이트 시간: -"
     return
   }
 
   const maxUpdatedAt = data.reduce((max, row) => {
-    if(!max) return row.updated_at
-    return new Date(row.updated_at) > new Date(max) ? row.updated_at : max
+    if (!max) return row.updated_at
+
+    return new Date(row.updated_at) > new Date(max)
+      ? row.updated_at
+      : max
   }, null)
 
-  updatedAtEl.innerText = `업데이트 시간: ${formatDateNoSeconds(maxUpdatedAt)}`
+  updatedAtElement.innerText =
+    `업데이트 시간: ${formatDateNoSeconds(maxUpdatedAt)}`
 
   data
-    .sort((a, b) => gateSortValue(a.gate) - gateSortValue(b.gate) || String(a.gate).localeCompare(String(b.gate)))
-    .forEach(r => {
+    .sort((a, b) => {
+      return (
+        gateSortValue(a.gate) - gateSortValue(b.gate) ||
+        String(a.gate).localeCompare(String(b.gate))
+      )
+    })
+    .forEach(row => {
       const card = document.createElement("div")
+
       card.className = "ewt_card"
       card.innerHTML = `
-        <div class="ewt_gate">${r.gate}</div>
-        <div class="ewt_status ${getStatusClass(r.status)}">${r.status}</div>
+        <div class="ewt_gate">${row.gate}</div>
+        <div class="ewt_status ${getStatusClass(row.status)}">
+          ${row.status}
+        </div>
       `
+
       board.appendChild(card)
     })
 }
 
-async function loadData(){
+async function loadData() {
   await Promise.all([
     loadWaitList(),
     loadEWT()
